@@ -65,7 +65,7 @@ function RaidBuff:OnDisable()
     self:UnregisterAllEvents()
 end
 
-function RaidBuff:OnCommReceive(prefix, sender, distribution, method, fileName,subgroup,targetName)
+function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, targetName)
     if method =="UpdateManuel" then
         self.RBF:UpdateManuel(fileName,subgroup,targetName, true,true)
         if targetName then
@@ -80,12 +80,12 @@ function RaidBuff:OnCommReceive(prefix, sender, distribution, method, fileName,s
         self.RBF:Reflash()
     end
 end
-function RaidBuff:Reflash(msg, name)
+function RaidBuff:Reflash(_, _)
     self.RBF:Reflash()
 end
 
 function RaidBuff:GetClassHex(fileName,name)
-    local ColorfulName, ColorfulClassName = nil, nil
+    local ColorfulName
     local c = RAID_CLASS_COLORS[fileName]
     local classHex = string.format("%2x%2x%2x", c.r*255, c.g*255, c.b*255)
     if name then ColorfulName = string.format("|cff%s%s|r", classHex,  name) end
