@@ -111,7 +111,7 @@ function RaidBuffFrame:CreateContextMenusButton(id, parent, classFile, targetNam
     button:SetScript("OnClick", function()
         if arg1 == "LeftButton" then
             --parent.text:SetText(nameC)
-            RaidBuffFrame:UpdateManuel(classFile, parent.subgroup, targetName)
+            RaidBuffFrame:UpdateManuel(classFile, parent.subgroup, targetName, false,true)
             self.CMF:Hide()
         elseif arg1 == "RightButton" then
             self.CMF:Hide()
@@ -131,7 +131,7 @@ function RaidBuffFrame:UpdateContextMenusButton(id, parent, classFile, targetNam
     self.CMF.buttons[id]:SetHeight(40)
     self.CMF.buttons[id]:SetScript("OnClick", function()
         --parent.text:SetText(nameC)
-        RaidBuffFrame:UpdateManuel(classFile, parent.subgroup, targetName)
+        RaidBuffFrame:UpdateManuel(classFile, parent.subgroup, targetName, false, true)
         self.CMF:Hide()
     end)
 end
@@ -380,7 +380,7 @@ function RaidBuffFrame:CreateGroupFrame(parent, id, subgroup, blsWidth, blsHeigh
             if arg1 == "LeftButton" then
                 self:UpdateContextMenusFrame(this.classFile, this)
             elseif arg1 == "RightButton" then
-                self:UpdateManuel(classFile,subgroup,nil)
+                self:UpdateManuel(classFile,subgroup,nil,false,true)
                 if self.CMF:IsVisible() then
                     self.CMF:Hide()
                 end
@@ -477,12 +477,15 @@ function RaidBuffFrame:ScanRaid()
         end
     end
 end
-function RaidBuffFrame:UpdateManuel(fileName, subgroup, targetName, disableComm)
+
+function RaidBuffFrame:UpdateManuel(fileName, subgroup, targetName, disableComm, reflash)
     self.Buff[fileName][subgroup] = targetName
     if not disableComm then
         RaidBuff:SendCommMessage("RAID","UpdateManuel", fileName,subgroup,targetName )
     end
-    self:UpdateRightFrame()
+    if reflash then
+        self:Reflash()
+    end
 end
 function RaidBuffFrame:SaveFramePosition()
     local point, _, relativePoint, xOfs, yOfs = self.mainFrame:GetPoint()
@@ -508,7 +511,8 @@ function RaidBuffFrame:AutoSet()
     for i, v in pairs( self.Buff["PRIEST"]) do
         self.Buff["PRIEST2"][i] = v
     end
-    self:UpdateRightFrame()
+    RaidBuff:SendCommMessage("RAID","Reflash")
+    self:Reflash()
 end
 function RaidBuffFrame:SetForClass(nbOfGroup, fileName)
     local nbOfCandidate = tLength(self.ClassList[fileName])
@@ -524,7 +528,8 @@ function RaidBuffFrame:SetForClass(nbOfGroup, fileName)
             nb = ceil(nbOfG/ nbOfCandidate)
             for _ = 1, nb do
                 subgroup = self.SubGroupList[indexOfSGL]
-                self.Buff[fileName][subgroup] = targetName
+                self:UpdateManuel(fileName,subgroup,targetName,false,false)
+                --self.Buff[fileName][subgroup] = targetName
                 indexOfSGL=indexOfSGL +  1
                 nbOfG = nbOfG - 1
             end
@@ -564,11 +569,8 @@ function RaidBuffFrame:CleanBuff(disableComm)
     end
     self:UpdateRightFrame()
 end
-
-
-
-function RaidBuffFrame:SyncBuff(msg)
-        self.Buff=msg
+function RaidBuffFrame:Reflash()
+        self:ScanRaid()
         self:UpdateRightFrame()
 end
 

@@ -57,7 +57,8 @@ end
 function RaidBuff:OnEnable()
     self.RBF:OnEnable()
     self:RegisterComm(self.Prefix, "RAID")
-    --self:RegisterEvent("PARTY_INVITE_REQUEST", "joinParty")
+
+    self:RegisterEvent("PARTY_MEMBERS_CHANGED", "Reflash")
     --self:RegisterEvent("PARTY_INVITE_CANCEL", "canceljoinParty")
 end
 function RaidBuff:OnDisable()
@@ -66,15 +67,22 @@ end
 
 function RaidBuff:OnCommReceive(prefix, sender, distribution, method, fileName,subgroup,targetName)
     if method =="UpdateManuel" then
-        self.RBF:UpdateManuel(fileName,subgroup,targetName, true)
+        self.RBF:UpdateManuel(fileName,subgroup,targetName, true,true)
+        if targetName then
+            self:Print(format("<%s>分配《%s》加《%s》队%sbuff",sender,targetName,subgroup,L[fileName]))
+        else
+            self:Print(format("<%s>清除了《%s》队%sbuff的分配",sender,subgroup,L[fileName]))
+        end
     elseif  method =="CleanBuff" then
+        self:Print(format("<%s>清除了所有buff分配",sender))
         self.RBF:CleanBuff(true)
+    elseif method =="Reflash" then
+        self.RBF:Reflash()
     end
-
-
 end
-
-
+function RaidBuff:Reflash(msg, name)
+    self.RBF:Reflash()
+end
 
 function RaidBuff:GetClassHex(fileName,name)
     local ColorfulName, ColorfulClassName = nil, nil
