@@ -123,8 +123,8 @@ function RaidBuffFrame:CreateContextMenusButton(id, parent, classFile, targetNam
     return button
 end
 function RaidBuffFrame:UpdateContextMenusButton(id, parent, classFile, targetName)
-    local classFileReal = GetRealClassFile(classFile)
-    local nameC = RaidBuff:GetClassHex(classFileReal, targetName)
+    --local classFileReal = GetRealClassFile(classFile)
+    --local nameC = RaidBuff:GetClassHex(classFileReal, targetName)
     self.CMF.buttons[id]:SetPoint("TOP", self.CMF, "TOP",0, - 20 * (id - 1))
     self.CMF.buttons[id]:SetFrameStrata("FULLSCREEN_DIALOG")
     self.CMF.buttons[id]:SetWidth(self.CMF:GetWidth())
