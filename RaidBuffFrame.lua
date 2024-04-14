@@ -195,6 +195,7 @@ function RaidBuffFrame:SetUpMainFrame()
         f:ClearAllPoints()
         f:SetPoint(point, UIParent, relativePoint, x  , y )
     end
+    f:Hide()
     return f
 end
 function RaidBuffFrame:UpdateMainFrame()

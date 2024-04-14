@@ -57,7 +57,6 @@ end
 function RaidBuff:OnEnable()
     self.RBF:OnEnable()
     self:RegisterComm(self.Prefix, "RAID")
-
     self:RegisterEvent("PARTY_MEMBERS_CHANGED", "Reflash")
     --self:RegisterEvent("PARTY_INVITE_CANCEL", "canceljoinParty")
 end
