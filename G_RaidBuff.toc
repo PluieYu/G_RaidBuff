@@ -8,7 +8,7 @@
 ## SavedVariables: RaidBuffDB
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
+base64.lua
 Locale-zhCN.lua
 RaidBuffFrame.lua
 G_RaidBuff.lua
-base64.lua
