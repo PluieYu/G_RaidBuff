@@ -13,6 +13,7 @@ function RaidBuffFrame:OnInitialize()
     self.Buff["PRIEST2"]=RaidBuff.opt.P2Buff
     self.Buff["MAGE"]=RaidBuff.opt.MBuff
     self.Buff["DRUID"]=RaidBuff.opt.DBuff
+    self.SBuff = RaidBuff.opt.SBuff
 end
 function RaidBuffFrame:OnEnable()
     self:ScanRaid()
@@ -22,11 +23,101 @@ function RaidBuffFrame:OnEnable()
     if not self.mainFrame then
         self.mainFrame = self:SetUpMainFrame()
     end
-
+    --if not self.CBF then
+    --    self.CBF = self:SetUpClickBuffFrame()
+    --end
+    --self.CBF:Show()
 end
 function RaidBuffFrame:ShowFrame()
     self.mainFrame:Show()
 end
+
+--召唤界面 --
+function RaidBuffFrame:SetUpClickBuffFrame()
+    local CBF = CreateFrame("Frame", "BFClickBuff", UIParent)
+    CBF:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
+        insets = {left = 5, right = 5, top = 5, bottom = 5},
+    })
+    CBF.buttons = {}
+    CBF:SetWidth(70)
+
+    CBF:SetFrameStrata("LOW")
+    -- position
+    CBF:ClearAllPoints()
+    CBF:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    CBF:Show()
+    -- drag and drop
+    CBF:EnableMouse(true)
+    CBF:SetClampedToScreen(true) -- can't move it outside of the screen
+    CBF:RegisterForDrag("LeftButton")
+    CBF:SetMovable(true)
+    CBF:SetScript("OnDragStart", function() this:StartMoving() end)
+    CBF:SetScript("OnDragStop", function()
+        this:StopMovingOrSizing()
+        self:SaveFramePosition("CBF" , this)
+    end)
+    local text = CBF:CreateFontString(nil, "ARTWORK")
+    text:SetFontObject(GameFontHighlightSmall)
+    text:SetFont(STANDARD_TEXT_FONT, UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
+    text:SetPoint("TOP", CBF ,"TOP", 0 ,-5)
+    text:SetText(RaidBuff.Prefix2)
+    CBF.text = text
+    local sizeIcons = 50
+    local pC = RaidBuff.playerClass
+    if pC== "PRIEST" then
+        CBF.buttons[1] = self:CreateClickBuffButton(CBF, sizeIcons ,1,"Interface\\Icons\\spell_holy_prayeroffortitude")
+        CBF.buttons[2] = self:CreateClickBuffButton(CBF, sizeIcons ,2,"Interface\\Icons\\spell_holy_prayerofspirit")
+        CBF:SetHeight(sizeIcons * 2 + 50)
+    elseif pC == "MAGE" then
+        CBF.buttons[1] = self:CreateClickBuffButton(CBF, sizeIcons ,1,"Interface\\Icons\\spell_holy_arcaneintellect")
+        CBF:SetHeight(sizeIcons * 1 + 50)
+    elseif pC == "DRUID" then
+        CBF.buttons[1] = self:CreateClickBuffButton(CBF, sizeIcons ,1,"Interface\\Icons\\spell_nature_regeneration")
+        CBF:SetHeight(sizeIcons * 1 + 50)
+    end
+    local x = RaidBuff.opt.xOfs["CBF"]
+    local y = RaidBuff.opt.yOfs["CBF"]
+    local point = RaidBuff.opt.point["CBF"]
+    local relativePoint = RaidBuff.opt.relativePoint["CBF"]
+    if x and y then
+        CBF:ClearAllPoints()
+        CBF:SetPoint(point, UIParent, relativePoint, x  , y )
+    end
+    return CBF
+end
+function RaidBuffFrame:UpdateClickBuffFrame()
+end
+function RaidBuffFrame:CreateClickBuffButton(parent,sizeIcons,id,IconsPath)
+    local button = CreateFrame("Button", "DewdropButton" .. id, parent)
+    button:SetPoint("TOP", parent, "TOP",0, 5 - sizeIcons * id)
+    --button:SetFrameStrata("ARTWORK")
+    button:SetWidth(sizeIcons)
+    button:SetHeight(sizeIcons)
+    --{"Interface\\Buttons\\UI-QuickslotRed","Interface\\Buttons\\YELLOWORANGE64","Interface\\Buttons\\GREENGRAD64"}
+    button:SetNormalTexture(IconsPath)
+    --button:GetNormalTexture():SetVertexColor(1, .1, .1, 1)
+    --button:SetBackdropColor(1, 0.0, 0.0, 0.5);
+    button:SetScript("OnEnter", function()
+        print("OnEnter")
+    end)
+    button:SetScript("OnLeave", function()
+        print("OnLeave")
+    end)
+    button:RegisterForClicks("LeftButtonUp","RightButtonUp")
+    button:SetScript("OnClick", function()
+        if arg1 == "LeftButton" then
+            print("LeftButton")
+        elseif arg1 == "RightButton" then
+            print("RightButton")
+        end
+    end)
+    button:Show()
+    return button
+end
+
+
 --下拉菜单/反复利用--
 function RaidBuffFrame:SetUpContextMenusFrame()
     --ContextMenusFrame
@@ -68,7 +159,6 @@ function RaidBuffFrame:UpdateContextMenusFrame(classFile, parent)
     end
 end
 function RaidBuffFrame:CreateContextMenusButton(id, parent, classFile, targetName)
-
     local classFileReal = GetRealClassFile(classFile)
     local nameC = RaidBuff:GetClassHex(classFileReal, targetName)
     local button = CreateFrame("Button", "DewdropButton" .. id, self.CMF)
@@ -82,14 +172,12 @@ function RaidBuffFrame:CreateContextMenusButton(id, parent, classFile, targetNam
     highlight:SetAllPoints(button)
     highlight:Hide()
     button.highlight = highlight
-
     local text = button:CreateFontString(nil, "ARTWORK")
     text:SetFontObject(GameFontHighlightSmall)
     text:SetFont(STANDARD_TEXT_FONT, UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
     text:SetPoint("center",button ,"center")
     text:SetText(nameC)
     button.text = text
-
     local colorSwatch = button:CreateTexture(nil, "OVERLAY")
     button.colorSwatch = colorSwatch
     colorSwatch:SetWidth(90)
@@ -99,11 +187,9 @@ function RaidBuffFrame:CreateContextMenusButton(id, parent, classFile, targetNam
     colorSwatch.texture = texture
     texture:SetTexture(1, 1, 1)
     texture:Show()
-
     button:SetScript("OnEnter", function()
         this.highlight:Show()
     end)
-
     button:SetScript("OnLeave", function()
         this.highlight:Hide()
     end)
@@ -116,9 +202,6 @@ function RaidBuffFrame:CreateContextMenusButton(id, parent, classFile, targetNam
         elseif arg1 == "RightButton" then
             self.CMF:Hide()
         end
-
-
-
     end)
     return button
 end
@@ -172,7 +255,7 @@ function RaidBuffFrame:SetUpMainFrame()
     f:SetScript("OnDragStart", function() this:StartMoving() end)
     f:SetScript("OnDragStop", function()
         this:StopMovingOrSizing()
-        self:SaveFramePosition()
+        self:SaveFramePosition("mainFrame" , this)
     end)
     --<创建抬头>
     f.headFrame = self:CreateHeaderFrame(f)
@@ -187,10 +270,10 @@ function RaidBuffFrame:SetUpMainFrame()
     f.bottomFrame = self:CreateBottomFrame(f)
     --</创建下边>
 
-    local x = RaidBuff.opt.xOfs
-    local y = RaidBuff.opt.yOfs
-    local point = RaidBuff.opt.point
-    local relativePoint = RaidBuff.opt.relativePoint
+    local x = RaidBuff.opt.xOfs["mainFrame"]
+    local y = RaidBuff.opt.yOfs["mainFrame"]
+    local point = RaidBuff.opt.point["mainFrame"]
+    local relativePoint = RaidBuff.opt.relativePoint["mainFrame"]
     if x and y then
         f:ClearAllPoints()
         f:SetPoint(point, UIParent, relativePoint, x  , y )
@@ -479,22 +562,38 @@ function RaidBuffFrame:ScanRaid()
     end
 end
 
-function RaidBuffFrame:UpdateManuel(fileName, subgroup, targetName, disableComm, reflash)
+function RaidBuffFrame:UpdateManuel(fileName, subgroup, targetName, disableComm, reFlash)
     self.Buff[fileName][subgroup] = targetName
     if not disableComm then
         RaidBuff:SendCommMessage("RAID","UpdateManuel", fileName,subgroup,targetName )
     end
-    if reflash then
+    if reFlash then
         self:Reflash()
     end
+    self:CheckSelfBuff(fileName, subgroup, targetName)
 end
-function RaidBuffFrame:SaveFramePosition()
-    local point, _, relativePoint, xOfs, yOfs = self.mainFrame:GetPoint()
-    RaidBuff.opt.point = point
-    RaidBuff.opt.relativePoint = relativePoint
-    RaidBuff.opt.xOfs = xOfs
-    RaidBuff.opt.yOfs = yOfs
+
+function RaidBuffFrame:CheckSelfBuff(fileName, subgroup, targetName)
+    if fileName == RaidBuff.playerClass then
+        local pt = tContains(self.SBuff, subgroup)
+        if not pt and targetName == RaidBuff.playerName then
+            tinsert(self.SBuff, subgroup)
+        elseif pt and targetName ~= RaidBuff.playerName then
+            tremove(self.SBuff, pt)
+        else
+            return
+        end
+    end
 end
+
+function RaidBuffFrame:SaveFramePosition(name, parent)
+    local point, _, relativePoint, xOfs, yOfs = parent:GetPoint()
+    RaidBuff.opt.point[name] = point
+    RaidBuff.opt.relativePoint[name] = relativePoint
+    RaidBuff.opt.xOfs[name] = xOfs
+    RaidBuff.opt.yOfs[name] = yOfs
+end
+
 function GetRealClassFile(classFile)
     if classFile == "PRIEST2" then
         return "PRIEST"
@@ -503,20 +602,22 @@ function GetRealClassFile(classFile)
 end
 --下面的按钮的func--
 function RaidBuffFrame:AutoSet()
+    self:CleanBuff()
     self:ScanRaid()
     local nbOfGroup = tLength(self.SubGroupList)
-    for _, v in ipairs( {"PRIEST", "MAGE", "DRUID" }) do
+    for _, v in ipairs( {"PRIEST", "PRIEST2", "MAGE", "DRUID" }) do
         self.Buff[v] = {}
         self:SetForClass(nbOfGroup, v)
     end
-    for i, v in pairs( self.Buff["PRIEST"]) do
-        self.Buff["PRIEST2"][i] = v
-    end
-    RaidBuff:SendCommMessage("RAID","Reflash")
+    --for i, v in pairs( self.Buff["PRIEST"]) do
+    --    self.Buff["PRIEST2"][i] = v
+    --end
+    RaidBuff:SendCommMessage("RAID", "Reflash")
     self:Reflash()
 end
 function RaidBuffFrame:SetForClass(nbOfGroup, fileName)
-    local nbOfCandidate = tLength(self.ClassList[fileName])
+    local classNameReal = GetRealClassFile(fileName)
+    local nbOfCandidate = tLength(self.ClassList[classNameReal])
     --RaidBuff:LevelDebug(2,
     --        format("nbOfCandidate of %s are <%s> ",
     --                tostring(fileName), tostring(nbOfCandidate)))
@@ -524,12 +625,12 @@ function RaidBuffFrame:SetForClass(nbOfGroup, fileName)
     local indexOfSGL = 1
     local subgroup,nb,targetName
     if nbOfCandidate > 0 then
-        for _, v in ipairs(self.ClassList[fileName]) do
+        for _, v in ipairs(self.ClassList[classNameReal]) do
             targetName = v
             nb = ceil(nbOfG/ nbOfCandidate)
             for _ = 1, nb do
                 subgroup = self.SubGroupList[indexOfSGL]
-                self:UpdateManuel(fileName,subgroup,targetName,false,false)
+                self:UpdateManuel(fileName, subgroup,targetName,false,false)
                 --self.Buff[fileName][subgroup] = targetName
                 indexOfSGL=indexOfSGL +  1
                 nbOfG = nbOfG - 1
@@ -538,6 +639,7 @@ function RaidBuffFrame:SetForClass(nbOfGroup, fileName)
         end
     end
 end
+
 function RaidBuffFrame:Report()
     SendChatMessage(format("%s%s%s", strrep("*", 10),RaidBuff.Prefix, strrep("*", 10) ),"RAID")
     local buffName = {L["耐力"], L["精神"], L["智力"], L["爪子"]}

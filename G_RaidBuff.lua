@@ -12,13 +12,16 @@ function RaidBuff:OnInitialize()
     self:SetDebugLevel(3)
     self.Prefix =
     "|cffF5F54A["..base64:dec("5bCP55qu566x").."]|r|cff9482C9"..base64:dec("5Zui6ZifYnVmZuWKqeaJiw==").."|r"
+    self.Prefix2 =
+    "|cffF5F54A["..base64:dec("5bCP55qu566x").."]|r\n|cff9482C9"..base64:dec("YnVmZuWKqeaJiw==").."|r"
     --self:SetDebugging(true)
     self:RegisterDB("RaidBuffDB")
     self:RegisterDefaults("profile", {
-        xOfs = nil,
-        yOfs = nil,
-        point = nil,
-        relativePoint = nil,
+        xOfs = {},
+        yOfs = {},
+        point = {},
+        relativePoint = {},
+        SBuff = {},
         PBuff = {},
         P2Buff = {},
         MBuff = {},
@@ -46,8 +49,6 @@ function RaidBuff:OnInitializeOption()
             },
         }
     }
-
-
 end
 
 function RaidBuff:OnProfileEnable()
@@ -55,14 +56,85 @@ function RaidBuff:OnProfileEnable()
 end
 
 function RaidBuff:OnEnable()
+    local playerClassN
+    self.playerName = UnitName("player")
+    playerClassN, self.playerClass = UnitClass("player")
     self.RBF:OnEnable()
     self:RegisterComm(self.Prefix, "RAID")
-    self:RegisterEvent("PARTY_MEMBERS_CHANGED", "Reflash")
-    --self:RegisterEvent("PARTY_INVITE_CANCEL", "canceljoinParty")
+    self:RegisterEvent("UNIT_AURA", "test")
+    self:RegisterEvent("RAID_ROSTER_UPDATE", "Reflash")
+
+
+    --    self.GF = CreateFrame("GameTooltip","GameTooltip" , UIParent, "GameTooltipTemplate")
+    --v:SetOwner(WorldFrame,"ANCHOR_NONE")
+
 end
 function RaidBuff:OnDisable()
     self:UnregisterAllEvents()
 end
+
+function RaidBuff:test(unitTarget)
+    self:Print(unitTarget)
+    local i = 1
+    while true do
+        local a = UnitBuff(unitTarget, i)
+        if not a then
+           break
+        end
+        self:Print(a)
+        GameTooltip:Hide()
+        GameTooltip:SetOwner(UIParent, "ANCHOR_NONE");
+        GameTooltip:SetUnitBuff(unitTarget, i);
+        local text = getText(GameTooltip)
+        for i, v in pairs(text) do
+            self:Print(v[1])
+            self:Print(v[2])
+        end
+        i = i +1
+    end
+end
+function getFontString(obj)
+    local r, g, b, color, a
+    local text, segment
+    for i=1, obj:NumLines() do
+        local left = getglobal("GameTooltipTextLeft"..i)
+        segment = left and left:IsVisible() and left:GetText()
+        segment = segment and segment ~= "" and segment or nil
+        if segment then
+            r, g, b, a = left:GetTextColor()
+            segment = rgbhex(r,g,b) .. segment .. "|r"
+            text = text and text .. "\n" .. segment or segment
+        end
+    end
+    return text
+end
+
+function getText(obj)
+         local text = {}
+         for i=1, obj:NumLines() do
+             local left, right = getglobal("GameTooltipTextLeft"..i),getglobal("GameTooltipTextRight"..i)
+             left = left and left:IsVisible() and left:GetText()
+             right = right and right:IsVisible() and right:GetText()
+             left = left and left ~= "" and left or nil
+             right = right and right ~= "" and right or nil
+             if left or right then
+                 text[i] = {left, right}
+             end
+         end
+         return text
+end
+
+
+
+
+
+function RaidBuff:SelfBuffRegister(subgroup)
+end
+
+function RaidBuff:SelfBuffUnregister(subgroup)
+end
+
+
 
 function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, targetName)
     if method =="UpdateManuel" then
@@ -79,7 +151,7 @@ function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, target
         self.RBF:Reflash()
     end
 end
-function RaidBuff:Reflash(_, _)
+function RaidBuff:Reflash()
     self.RBF:Reflash()
 end
 
