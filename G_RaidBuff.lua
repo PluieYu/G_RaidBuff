@@ -59,8 +59,8 @@ function RaidBuff:OnEnable()
     self:RegisterComm(self.Prefix, "RAID")
     --self:RegisterEvent("UNIT_AURA", "test")
     self:RegisterEvent("RAID_ROSTER_UPDATE", "Flush")
-    self:RegisterEvent("CHAT_MSG_RAID", "CheckChatMessage")
-    self:RegisterEvent("CHAT_MSG_RAID_LEADER", "CheckChatMessage")
+    --self:RegisterEvent("CHAT_MSG_RAID", "CheckChatMessage")
+    --self:RegisterEvent("CHAT_MSG_RAID_LEADER", "CheckChatMessage")
 
 end
 function RaidBuff:OnDisable()
@@ -68,18 +68,25 @@ function RaidBuff:OnDisable()
 end
 
 
-function RaidBuff:CheckChatMessage(msg, name)
-
-    --if strsub(msg,0, stringLen) ~= self.Prefix then
-    --    for _, word in pairs(L["关键词"]) do
-    --        index_stat, index_end = string.find(msg, word);
-    --        if index_stat then
-    --            self:OnCommReceive("", "", "RAID", "Add", name)
-    --            self:SendCommMessage("RAID","Add",name)
-    --        end
-    --    end
-    --end
-end
+--function RaidBuff:CheckChatMessage(msg, name)
+--    if not name ==  UnitName("player")  then
+--        for _, word in pairs({L["耐力"], L["智力"], L["爪子"]}) do
+--            index_stat, index_end = string.find(msg, word);
+--            if index_stat then
+--
+--            end
+--        end
+--    end
+--    --if strsub(msg,0, stringLen) ~= self.Prefix then
+--    --    for _, word in pairs(L["关键词"]) do
+--    --        index_stat, index_end = string.find(msg, word);
+--    --        if index_stat then
+--    --            self:OnCommReceive("", "", "RAID", "Add", name)
+--    --            self:SendCommMessage("RAID","Add",name)
+--    --        end
+--    --    end
+--    --end
+--end
 
 function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, targetName)
     if method =="UpdateManuel" then

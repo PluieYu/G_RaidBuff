@@ -11,7 +11,6 @@ L:RegisterTranslations("zhCN", function() return {
 	["MAGE"] = "法师",
 	["DRUID"] = "小德",
 	["耐力"] = "耐力",
-	["精神"] = "精神",
 	["智力"] = "智力",
 	["爪子"] ="爪子",
 	["自动分配"] = "自动分配",
