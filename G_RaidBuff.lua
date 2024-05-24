@@ -7,6 +7,8 @@
 RaidBuff = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0","AceComm-2.0","AceDB-2.0","AceDebug-2.0","AceConsole-2.0","FuBarPlugin-2.0", "AceHook-2.1")
 local L = AceLibrary("AceLocale-2.2"):new("RaidBuff")
 RaidBuff.hasIcon = "Interface\\Icons\\INV_Misc_Candle_02"
+--CreateFrame("GameTooltip", "MyScanningTooltip", nil, "GameTooltipTemplate")
+--MyScanningTooltip:SetOwner(WorldFrame, "ANCHOR_NONE" )
 
 function RaidBuff:OnInitialize()
     self:SetDebugLevel(3)
@@ -21,17 +23,14 @@ function RaidBuff:OnInitialize()
         yOfs = {},
         point = {},
         relativePoint = {},
-        SBuff = {},
         PBuff = {},
-        P2Buff = {},
         MBuff = {},
         DBuff = {},
     })
     self:OnProfileEnable()
-    self.RBF=RaidBuffFrame
-    self.RBF:OnInitialize()
-    self:OnInitializeOption()
+    RBMain:OnInitialize()
     self:SetCommPrefix(self.Prefix)
+    self:OnInitializeOption()
     self.OnMenuRequest = self.options
     self:RegisterChatCommand({"/RaidBuff", "/RB"}, self.options)
     DEFAULT_CHAT_FRAME:AddMessage(self.Prefix ..L["已加载"])
@@ -45,7 +44,7 @@ function RaidBuff:OnInitializeOption()
                 name = L["打开界面"],
                 desc = L["打开界面描述"],
                 order =1,
-                func = function() self.RBF:ShowFrame() end,
+                func = function() RBMain.mf:Show() end,
             },
         }
     }
@@ -56,103 +55,46 @@ function RaidBuff:OnProfileEnable()
 end
 
 function RaidBuff:OnEnable()
-    local playerClassN
-    self.playerName = UnitName("player")
-    playerClassN, self.playerClass = UnitClass("player")
-    self.RBF:OnEnable()
+    RBMain:OnEnable()
     self:RegisterComm(self.Prefix, "RAID")
-    self:RegisterEvent("UNIT_AURA", "test")
-    self:RegisterEvent("RAID_ROSTER_UPDATE", "Reflash")
-
-
-    --    self.GF = CreateFrame("GameTooltip","GameTooltip" , UIParent, "GameTooltipTemplate")
-    --v:SetOwner(WorldFrame,"ANCHOR_NONE")
+    --self:RegisterEvent("UNIT_AURA", "test")
+    self:RegisterEvent("RAID_ROSTER_UPDATE", "Flush")
+    self:RegisterEvent("CHAT_MSG_RAID", "CheckChatMessage")
+    self:RegisterEvent("CHAT_MSG_RAID_LEADER", "CheckChatMessage")
 
 end
 function RaidBuff:OnDisable()
     self:UnregisterAllEvents()
 end
 
-function RaidBuff:test(unitTarget)
-    self:Print(unitTarget)
-    local i = 1
-    while true do
-        local a = UnitBuff(unitTarget, i)
-        if not a then
-           break
-        end
-        self:Print(a)
-        GameTooltip:Hide()
-        GameTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-        GameTooltip:SetUnitBuff(unitTarget, i);
-        local text = getText(GameTooltip)
-        for i, v in pairs(text) do
-            self:Print(v[1])
-            self:Print(v[2])
-        end
-        i = i +1
-    end
+
+function RaidBuff:CheckChatMessage(msg, name)
+
+    --if strsub(msg,0, stringLen) ~= self.Prefix then
+    --    for _, word in pairs(L["关键词"]) do
+    --        index_stat, index_end = string.find(msg, word);
+    --        if index_stat then
+    --            self:OnCommReceive("", "", "RAID", "Add", name)
+    --            self:SendCommMessage("RAID","Add",name)
+    --        end
+    --    end
+    --end
 end
-function getFontString(obj)
-    local r, g, b, color, a
-    local text, segment
-    for i=1, obj:NumLines() do
-        local left = getglobal("GameTooltipTextLeft"..i)
-        segment = left and left:IsVisible() and left:GetText()
-        segment = segment and segment ~= "" and segment or nil
-        if segment then
-            r, g, b, a = left:GetTextColor()
-            segment = rgbhex(r,g,b) .. segment .. "|r"
-            text = text and text .. "\n" .. segment or segment
-        end
-    end
-    return text
-end
-
-function getText(obj)
-         local text = {}
-         for i=1, obj:NumLines() do
-             local left, right = getglobal("GameTooltipTextLeft"..i),getglobal("GameTooltipTextRight"..i)
-             left = left and left:IsVisible() and left:GetText()
-             right = right and right:IsVisible() and right:GetText()
-             left = left and left ~= "" and left or nil
-             right = right and right ~= "" and right or nil
-             if left or right then
-                 text[i] = {left, right}
-             end
-         end
-         return text
-end
-
-
-
-
-
-function RaidBuff:SelfBuffRegister(subgroup)
-end
-
-function RaidBuff:SelfBuffUnregister(subgroup)
-end
-
-
 
 function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, targetName)
     if method =="UpdateManuel" then
-        self.RBF:UpdateManuel(fileName,subgroup,targetName, true,true)
+        RBMain:UpdateResult(fileName,subgroup,targetName, false)
         if targetName then
-            self:Print(format("<%s>分配《%s》加《%s》队%sbuff",sender,targetName,subgroup,L[fileName]))
+            self:Print(format("<%s>分配了%s加%s队%sbuff",sender,targetName, subgroup, L[fileName]))
         else
-            self:Print(format("<%s>清除了《%s》队%sbuff的分配",sender,subgroup,L[fileName]))
+            self:Print(format("<%s>清除了%s队%sbuff的分配",sender, subgroup, L[fileName]))
         end
-    elseif  method =="CleanBuff" then
-        self:Print(format("<%s>清除了所有buff分配",sender))
-        self.RBF:CleanBuff(true)
-    elseif method =="Reflash" then
-        self.RBF:Reflash()
     end
 end
-function RaidBuff:Reflash()
-    self.RBF:Reflash()
+
+function RaidBuff:Flush()
+    RBMain:Scan()
+    RBMain:Flush()
 end
 
 function RaidBuff:GetClassHex(fileName,name)
@@ -187,3 +129,23 @@ function tLength(table)
     end
     return size;
 end
+
+--
+--function MyScanningTooltip:getText()
+--         local text = {}
+--         for i = 1, MyScanningTooltip:NumLines() do
+--             local left, right = getglobal("MyScanningTooltipTextLeft"..i), getglobal("MyScanningTooltipTextRight"..i)
+--             left = left and left:IsVisible() and left:GetText()
+--             right = right and right:IsVisible() and right:GetText()
+--             left = left and left ~= "" and left or nil
+--             right = right and right ~= "" and right or nil
+--             if left and right then
+--                 text[i] = {tostring(left), tostring(right)}
+--             elseif left then
+--                 text[i] = {tostring(left), "无"}
+--             elseif right then
+--                 text[i] = {"无", tostring(right)}
+--             end
+--         end
+--         return text
+--end

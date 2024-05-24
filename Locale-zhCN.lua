@@ -8,7 +8,6 @@ L:RegisterTranslations("zhCN", function() return {
 	["队伍"] = "队伍",
 	["没有"]= "没有",
 	["PRIEST"] = "牧师",
-	["PRIEST2"] = "牧师",
 	["MAGE"] = "法师",
 	["DRUID"] = "小德",
 	["耐力"] = "耐力",
@@ -21,6 +20,7 @@ L:RegisterTranslations("zhCN", function() return {
 	["完"]="完",
 	["第"] = "第",
 	["队"] = "队",
+	["缺失buff"] = "缺失buff",
 	font = "Fonts\\FRIZQT__.TTF"
 } end)
 
