@@ -11,23 +11,23 @@
 
 ### 使用方法
 1 小地图右键选择 蜡烛图标
-![小地图图标演示.jpg](img%2F%D0%A1%B5%D8%CD%BC%CD%BC%B1%EA%D1%DD%CA%BE.jpg)
+![1.jpg](img%2F%D0%A1%B5%D8%CD%BC%CD%BC%B1%EA%D1%DD%CA%BE.jpg)
 
 单击打开界面
-![小地图图标演示2.jpg](img%2F%D0%A1%B5%D8%CD%BC%CD%BC%B1%EA%D1%DD%CA%BE2.jpg)
+![2.jpg](img%2F%D0%A1%B5%D8%CD%BC%CD%BC%B1%EA%D1%DD%CA%BE2.jpg)
 
 主界面如下
-![图片演示3.jpg](img%2F%CD%BC%C6%AC%D1%DD%CA%BE3.jpg)
+![3.jpg](img%2F%CD%BC%C6%AC%D1%DD%CA%BE3.jpg)
 
 #### 自动分配
 左键点击左上角 筛子 按钮自动分配BUFF
-![界面演示.jpg](img%2F%BD%E7%C3%E6%D1%DD%CA%BE.jpg)
+![4.jpg](img%2F%BD%E7%C3%E6%D1%DD%CA%BE.jpg)
 
 #### 手动分配
 左键 点击队伍位置 可以手动分配BUFF
 
 右键 点击队伍位置 可以清除buff分配
-![界面演示2.jpg](img%2F%BD%E7%C3%E6%D1%DD%CA%BE2.jpg)
+![5.jpg](img%2F%BD%E7%C3%E6%D1%DD%CA%BE2.jpg)
 #### 发送通报
 主界面 智力 耐力 爪子 图标
 
