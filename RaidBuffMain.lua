@@ -469,8 +469,9 @@ function RBMain:Report(class)
             end
         end
     end
+    local buffNameR = format("%s %s", string.sub(buffName, 1, 3), string.sub(buffName, 3, 6))
     SendChatMessage(format("%s%s%s", strrep("*", 5),RaidBuff.Prefix, strrep("*", 5) ),"RAID")
-    SendChatMessage(format("*%s* :", RaidBuff:GetClassHex(class,buffName)) ,"RAID")
+    SendChatMessage(format("*%s* :", RaidBuff:GetClassHex(class,buffNameR)) ,"RAID")
 
     for _, val in pairs(reportList) do
         local nameC = RaidBuff:GetClassHex(class, val[1])

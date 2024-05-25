@@ -33,6 +33,7 @@ function RaidBuff:OnInitialize()
     self:OnInitializeOption()
     self.OnMenuRequest = self.options
     self:RegisterChatCommand({"/RaidBuff", "/RB"}, self.options)
+    self.autoR = false
     DEFAULT_CHAT_FRAME:AddMessage(self.Prefix ..L["已加载"])
 end
 function RaidBuff:OnInitializeOption()
@@ -45,6 +46,14 @@ function RaidBuff:OnInitializeOption()
                 desc = L["打开界面描述"],
                 order =1,
                 func = function() RBMain.mf:Show() end,
+            },
+            aoto = {
+                type = "toggle",
+                name = L["自动答复"],
+                desc = L["自动答复"],
+                order = 2,
+                get = function() return RaidBuff.autoR end,
+                set = function() RaidBuff:SetAutoReport() end,
             },
         }
     }
@@ -59,8 +68,10 @@ function RaidBuff:OnEnable()
     self:RegisterComm(self.Prefix, "RAID")
     --self:RegisterEvent("UNIT_AURA", "test")
     self:RegisterEvent("RAID_ROSTER_UPDATE", "Flush")
-    --self:RegisterEvent("CHAT_MSG_RAID", "CheckChatMessage")
-    --self:RegisterEvent("CHAT_MSG_RAID_LEADER", "CheckChatMessage")
+    if self.autoR then
+        self:RegisterEvent("CHAT_MSG_RAID", "CheckChatMessage")
+        self:RegisterEvent("CHAT_MSG_RAID_LEADER", "CheckChatMessage")
+    end
 
 end
 function RaidBuff:OnDisable()
@@ -68,25 +79,34 @@ function RaidBuff:OnDisable()
 end
 
 
---function RaidBuff:CheckChatMessage(msg, name)
---    if not name ==  UnitName("player")  then
---        for _, word in pairs({L["耐力"], L["智力"], L["爪子"]}) do
---            index_stat, index_end = string.find(msg, word);
---            if index_stat then
---
---            end
---        end
---    end
---    --if strsub(msg,0, stringLen) ~= self.Prefix then
---    --    for _, word in pairs(L["关键词"]) do
---    --        index_stat, index_end = string.find(msg, word);
---    --        if index_stat then
---    --            self:OnCommReceive("", "", "RAID", "Add", name)
---    --            self:SendCommMessage("RAID","Add",name)
---    --        end
---    --    end
---    --end
---end
+function RaidBuff:CheckChatMessage(msg, name)
+    if name ~= UnitName("player")  then
+        for class, value in pairs(RBDatabase) do
+            local keyWord = value.BuffName
+            index_stat, index_end = string.find(msg, keyWord);
+            if index_stat then
+                local targetSub = getSubgroup(name)
+                local targetR = RBMain.rlt[class][targetSub]
+                SendChatMessage(format("@%s %s队%s由%s负责 请单密索要",name,tostring(targetSub), keyWord, self:GetClassHex(class,targetR)) ,"RAID")
+            end
+        end
+    end
+end
+
+
+function RaidBuff:SetAutoReport()
+    if self.autoR then
+        self:UnregisterEvent("CHAT_MSG_RAID")
+        self:UnregisterEvent("CHAT_MSG_RAID_LEADER")
+        self.autoR = false
+    else
+        self:RegisterEvent("CHAT_MSG_RAID", "CheckChatMessage")
+        self:RegisterEvent("CHAT_MSG_RAID_LEADER", "CheckChatMessage")
+        self.autoR = true
+    end
+end
+
+
 
 function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, targetName)
     if method =="UpdateManuel" then
@@ -101,12 +121,10 @@ function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, target
     RBMain:Flush()
     end
 end
-
 function RaidBuff:Flush()
     RBMain:Scan()
     RBMain:Flush()
 end
-
 function RaidBuff:GetClassHex(fileName,name)
     local ColorfulName
     local c = RAID_CLASS_COLORS[fileName]
@@ -114,6 +132,17 @@ function RaidBuff:GetClassHex(fileName,name)
     if name then ColorfulName = string.format("|cff%s%s|r", classHex,  name) end
     return ColorfulName
 end
+
+function getSubgroup(target)
+    for i = 1, GetNumRaidMembers() do
+        local name, _, subgroup, _, _, _ = GetRaidRosterInfo(i)
+        if target == name then
+            return subgroup
+        end
+    end
+end
+
+
 function tContains(table, item)
     local index = 1;
     while table[index] do
