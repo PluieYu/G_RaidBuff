@@ -9,6 +9,11 @@
 解压 G_RaidBuff-main.zip 到 interface/Addons/
 重命名 G_RaidBuff-main 到 G_RaidBuff 即可
 
+### 更新日志
+#### 1.0 版本 
+基础功能完成
+
+
 ### 使用方法
 1 小地图右键选择 蜡烛图标
 
@@ -40,7 +45,5 @@
 
 右键点击: 清除此buff的分配
 
-### 更新日志
-#### 1.0 版本 
-基础功能完成
+
 
