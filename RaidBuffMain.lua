@@ -10,8 +10,8 @@ local L = AceLibrary("AceLocale-2.2"):new("RaidBuff")
 
 RBDatabase ={
     PRIEST = {
-        Icons={"Interface\\Icons\\Spell_Holy_PrayerOfFortitude",
-               "Interface\\Icons\\Spell_Holy_WordFortitude"
+        Icons={"Interface\\Icons\\Spell_Holy_WordFortitude",
+               "Interface\\Icons\\Spell_Holy_PrayerOfFortitude",
         },
         Name = L["PRIEST"],
         BuffName = L["耐力"]
@@ -24,7 +24,8 @@ RBDatabase ={
         BuffName = L["智力"]
     },
     DRUID= {
-        Icons={"Interface\\Icons\\Spell_Nature_Regeneration"
+        Icons={"Interface\\Icons\\Spell_Nature_Regeneration",
+               "Interface\\Icons\\Spell_Nature_Regeneration",
         },
         Name = L["DRUID"],
         BuffName = L["爪子"]
@@ -137,7 +138,8 @@ function RBMain:SetUpMainFrame()
     --创建title
     local emptyButton = CreateFrame("Button", "emptyButton", f)
     emptyButton:SetPoint("TOPLEFT" , f.textures["headLine"] , "BOTTOMLEFT", 0,  0)
-    emptyButton:SetNormalTexture("Interface\\Buttons\\BLUEGRAD64")
+    emptyButton:SetNormalTexture("Interface\\Buttons\\UI-GroupLoot-Dice-Down")
+    emptyButton:SetHighlightTexture("Interface\\Buttons\\UI-GroupLoot-Dice-Down")
     emptyButton:SetWidth(40)
     emptyButton:SetHeight(40)
     emptyButton:SetScript("OnClick", function()
@@ -188,7 +190,8 @@ function RBMain:SetUpMainFrame()
         f.buttons["buff"][classL] = {}
         local buffButton = CreateFrame("Button", "buffButton".. classL, f)
         buffButton:SetPoint("TOP" , not classD and f.buttons["emptyButton"] or f.buttons["buff"][classD][9], "BOTTOM", 0,  -4)
-        buffButton:SetNormalTexture(RBDatabase[classL]["Icons"][1])
+        buffButton:SetNormalTexture(RBDatabase[classL]["Icons"][2])
+        buffButton:SetHighlightTexture(RBDatabase[classL]["Icons"][2])
         buffButton:SetWidth(40)
         buffButton:SetHeight(40)
         -- 创建方程
