@@ -5,8 +5,11 @@
 ### 或者已经安装了整合版的 !Libs
 
 下载 zip 格式文件
+
 下载地址 https://github.com/PluieYu/G_RaidBuff/archive/refs/heads/main.zip
+
 解压 G_RaidBuff-main.zip 到 interface/Addons/
+
 重命名 G_RaidBuff-main 到 G_RaidBuff 即可
 
 ### 更新日志
