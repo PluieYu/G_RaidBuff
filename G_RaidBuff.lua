@@ -90,14 +90,15 @@ end
 
 function RaidBuff:OnCommReceive(_, sender, _, method, fileName, subgroup, targetName)
     if method =="UpdateManuel" then
-
-        if targetName then
-            self:Print(format("<%s>分配了%s加%s队%sbuff",sender,targetName, subgroup, L[fileName]))
-        else
-            self:Print(format("<%s>清除了%s队%sbuff的分配",sender, subgroup, L[fileName]))
+        if self:IsDebugging() then
+            if targetName then
+                self:Print(format("<%s>分配了%s加%s队%sbuff",sender,targetName, subgroup, L[fileName]))
+            else
+                self:Print(format("<%s>清除了%s队%sbuff的分配",sender, subgroup, L[fileName]))
+            end
         end
-        RBMain:UpdateResult(fileName, subgroup, targetName, false)
-        RBMain:Flush()
+    RBMain:UpdateResult(fileName, subgroup, targetName, false)
+    RBMain:Flush()
     end
 end
 
