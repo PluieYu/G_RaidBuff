@@ -39,7 +39,7 @@ function RaidBuff:OnInitializeOption()
     self.options = {
         type = "group",
         args = {
-            openFrame = {
+            of = {
                 type = "execute",
                 name = L["打开界面"],
                 desc = L["打开界面描述"],

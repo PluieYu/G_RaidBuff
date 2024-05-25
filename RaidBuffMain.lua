@@ -60,6 +60,11 @@ end
 function RBMain:OnEnable()
     self:Scan()
     self:Flush()
+    if GetNumRaidMembers() > 1 then
+        self.mf:Show()
+    else
+        self.mf:Hide()
+    end
 end
 
 function RBMain:OnDisable()
@@ -244,7 +249,6 @@ function RBMain:SetUpMainFrame()
             f.buttons["buff"][classL][subIndex] = subButton
         end
     end
-    f:Show()
     self.mf = f
 end
 function RBMain:SetUpDropDFrame()
@@ -337,7 +341,6 @@ end
 function RBMain:ResetClass(class)
     for i = 1, 8 do
         self:UpdateResult(class, i,nil, true)
-        --self.rlt[class][i] = nil
     end
 end
 
@@ -437,6 +440,7 @@ function RBMain:AutoSet()
     self:Scan()
     local nbOfGroup = tLength(self.raidStat)
     for class, _ in pairs(RBDatabase) do
+        self:ResetClass(class)
         local splitGroup = splitN(nbOfGroup, self.cdt[class])
         if splitGroup then
             for k, _ in pairs(self.raidStat) do
